@@ -97,7 +97,20 @@
 
 <body>
     <section id="events">
-      
+        <div>
+            <button style="margin-bottom: 8px;" onClick="redirectToUpcomingEvents()">Upcoming Events</button>
+            <div class="form-outline mb-4">
+                <label for="category">Choose a category</label>
+              
+                <select name="category" id="category" onchange="redirectToCategory()">
+                    <option value="sport">Select</option>
+                  <option value="sport">Sport</option>
+                  <option value="dance">Dance</option>
+                  <option value="technical">Technical</option>
+                </select>
+              </div>
+              
+        </div>
         <div class="events-box">
           <% for(var i=0;i<event.length;i++) { %>
             <div class="events">
@@ -141,6 +154,17 @@
 
             
     </section>
+    <script>
+        function redirectToCategory() {
+          const category = document.getElementById('category').value;
+          window.location.href = `/getEventAccordingTocategory?category=${category}`;
+        }
+        function redirectToUpcomingEvents() {
+            const urlParams = new URLSearchParams(window.location.search); // Get query parameters from URL
+            const category = urlParams.get('category');
+    window.location.href = `/viewSortedevents?category=${category}`;
+  }
+      </script>
 </body>
 
 </html>

@@ -388,56 +388,59 @@
     </header>
     <!--header ends-->
 
-    <div class="full">
-      <div class="outoutsp">
-
-        <div class="outsp">
-          <div class="left">
-            <img src="<%=event.photo%>">
+   
+      <div class="full">
+        <div class="outoutsp">
+          <div class="outsp">
+            <div class="left">
+              <img src="<%= event.photo %>">
+            </div>
+            <div class="right">
+              <span>Date: <%= event.dateStart %></span>
+              <span>Name: <%= event.name %></span>
+              <span>Time: <%= event.time %></span>
+              <span>Mode: <%= event.mode %></span>
+              <span>Venue: <%= event.venue %></span>
+              <span>Registration Fee: <%= event.registerationFee %></span>
+              <span>Cash Prize: <%= event.cashPrice %></span>
+              <span>Contact: <%= event.contact %></span> <!-- Corrected the second "Cash Prize" to "Contact" -->
+            </div>
           </div>
-          <div class="right">
-            <span>Date: <%=event.dateStart%></span>
-            <span>Name: <%=event.name%></span>
-            <span>Time: <%=event.time%></span>
-            <span>Mode: <%=event.mode%></span>
-            <span>Venue: <%=event.venue%></span>
-            <span>Registration Fee: <%=event.registerationFee%></span>
-            <span>Cash Prize: <%=event.cashPrice%></span>
-            <span>Cash Prize: <%=event.contact%></span>
-          </div>
-
         </div>
+      
+        <div class="form">
+          <center>
+            <h3>Register By Submitting The Form</h3><br>
+            <form action="/testing" method="POST">
+              <!-- Hidden field to pass the event name -->
+              <input type="hidden" name="events" value="<%= event.name %>">
+        
+              <!-- Hidden field to pass the registration fee amount -->
+              <input type="hidden" name="amount" value="<%= event.registerationFee %>">
+        
+              <!-- User input fields -->
+              <input type="text" placeholder="Name" name="name" required><br>
+              <input type="email" placeholder="Email" name="email" required><br>
+              <input type="number" placeholder="Mobile No" name="mobile" required><br>
+              <input type="text" placeholder="Enter Transaction Id" name="transactionid" required><br><br>
+        
+              <label for="Year Of Study">Year Of Study</label>
+              <select name="yos" id="yos" required>
+                <option value="I">I</option>
+                <option value="II">II</option>
+                <option value="III">III</option>
+                <option value="IV">IV</option>
+              </select><br><br>
+        
+              <img src="/images/qr.jpg" alt="QR code" height="300px" width="300px" class="qr" download><br><br>
+        
+              <button type="submit" class="subbtn">Submit</button>
+            </form>
+          </center><br><br>
+        </div>
+        
       </div>
-      <div class="form">
-        <center>
-          <h3>Register By Submitting The Form</h3><br>
-          <form action="/testing" method="POST">
-            <input type="text" placeholder="Name" name="name" required><br>
-            <input type="email" placeholder="Email" name="email" required><br>
-            <input type="number" placeholder="Mobile No" name="mobile" required><br>
-            <input type="text" placeholder="Event Name" name="events" required><br>
-            <input type="number" placeholder="Amount" name="amount" required> <br>
-            <input type="text" placeholder="Enter Transaction Id" name="transactionid" required> <br><br>
-            <label for="Year Of Study">Year Of Study</label>
-            <select name="yos" id="yos" placeholder="Year Of Study">
-              <option value="I">I</option>
-              <option value="II">II</option>
-              <option value="III">III</option>
-              <option value="IV">IV</option>
-
-            </select>
-            <br><br>
-
-            <img src="/images/qr.jpg" alt="Qrcode" height="300px" width="300px" class="qr" download>
-            <br>
-            <br>
-            <button type="submit" class="subbtn">Submit</button>
-
-
-
-          </form>
-        </center><br><br>
-      </div>
+      
     </div>
     <br><br>
     <script src="/js/index.js"></script>

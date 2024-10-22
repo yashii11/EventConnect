@@ -17,7 +17,7 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 
 // mongoose.set("strictQuery", false);
-mongoose.connect('mongodb://127.0.0.1:27017/event_management', {
+mongoose.connect('mongodb://127.0.0.1:27017/test', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -87,10 +87,90 @@ app.post("/updateEvent/:id", async (req, res) => {
   }
 })
 app.get("/viewevents", (req, res) => {
-  eventModule.find({}).then((data) => {
+  // Get the current date to compare with startDate
+  const today = new Date();
+
+  eventModule.find({ startDate: { $gte: today } }) // Fetch events with startDate greater than or equal to today
+    .then((data) => {
+      res.render("adminViewEvents", { event: data });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error fetching events");
+    });
+});
+
+app.get("/viewSortedevents", async (req, res) => {
+  try {
+    const today = new Date();
+    const category = req.query.category; // Get the selected category from the query string
+
+    const matchConditions = {
+      dateStart: { $gt: today } // Match events where dateStart is greater than today
+    };
+
+    // If a category is provided, add it to the match conditions
+    if (category) {
+      matchConditions.category = category;
+    }
+
+    const events = await eventModule.aggregate([
+      {
+        $match: matchConditions // Match by both dateStart and category
+      },
+      {
+        $sort: { dateStart: 1 } // Sort by dateStart in ascending order
+      }
+    ]);
+
+    res.render("adminViewEvents", { event: events });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error fetching events");
+  }
+});
+
+app.post('/geteventReg', async (req, res) => {
+  try {
+    const event = req.body.event.trim(); // Retrieve the event name from the request body
+    console.log(event);
+    const data = await eventRegistration.aggregate([
+      {
+        $match: { event: event } // Match the event by the event name
+      },
+      {
+        $group: {
+          _id: "$event", // Group by event name
+          registrations: { $push: "$$ROOT" } // Collect all registrations for the event
+        }
+      }
+    ]);
+
+    console.log("data", data);
+    res.render("adminViewRegistrations", { event: data[0].registrations }); // Render the data on your view
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error fetching registrations");
+  }
+});
+
+
+app.get("/getEventAccordingTocategory", async (req, res) => {
+  try {
+    // Get the selected category from the query parameter
+    const category = req.query.category;
+
+    // Fetch the events that match the selected category
+    const data = await eventModule.find({ category: category });
+
+    // Render the view with the filtered events
+    console.log(data)
     res.render("adminViewEvents", { event: data });
-  })
-})
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error fetching events according to category");
+  }
+});
 
 //2. CRUD OPERATIONS
 
@@ -220,27 +300,40 @@ app.post("/deleteEvents/:eventId", async (req, res) => {
 });
 
 // User Registering for an event + Payments
+app.post("/testing", async (req, res) => {
+  try {
+    // Check if the user has already registered for the same event
+    const existingRegistration = await eventRegistration.findOne({
+      email: req.body.email,
+      event: req.body.events // Check by event and email
+    });
 
-app.post("/testing", async(req,res)=>{
+    if (existingRegistration) {
+      // If registration exists, inform the user
+      console.log("User has already registered for this event.");
+      return res.status(400).send("You have already registered for this event.");
+    }
+
+    // If no existing registration, proceed with saving
     const register = new eventRegistration({
-      name:req.body.name,
-      email:req.body.email,
-      phnumber:req.body.mobile,
-      year:req.body.yos,
-      event:req.body.events,
-      amount:req.body.amount,
-      transactionid:req.body.transactionid
-    })
+      name: req.body.name,
+      email: req.body.email,
+      phnumber: req.body.mobile,
+      year: req.body.yos,
+      event: req.body.events,
+      amount: req.body.amount,
+      transactionid: req.body.transactionid
+    });
 
-    try{
-      await register.save();
-      res.redirect("/checkevents")
+    await register.save(); // Save the new registration
+    res.redirect("/checkevents"); // Redirect to the appropriate page
 
-    }
-    catch(err){
-      console.log(err);
-    }
-})
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error registering for the event");
+  }
+});
+
 
 // admin view for viewing student Registrations...
 app.get("/viewRegistrations", async(req,res)=>{
